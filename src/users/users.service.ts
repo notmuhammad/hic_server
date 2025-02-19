@@ -5,12 +5,17 @@ import { DrizzleService } from 'src/drizzle/drizzle.service';
 import { User } from 'src/drizzle/schema';
 import { eq } from 'drizzle-orm';
 
-// TODO: error handling
 @Injectable()
 export class UsersService {
-    async create(createUserDto: CreateUserDto): Promise<typeof User.$inferInsert> {
-        const [user] = await DrizzleService.db.insert(User).values(createUserDto).returning();
-        return user;
+    async create(createUserDto: CreateUserDto): Promise<typeof User.$inferInsert | string> {
+        try {
+            const [user] = await DrizzleService.db.insert(User).values(createUserDto).returning();
+            return user;
+        } catch (error) {
+            const errorMessage = `Error creating new post: ${error.message}`;
+            console.log(errorMessage);
+            return errorMessage;
+        }
     }
 
     async findAll(): Promise<Array<typeof User.$inferSelect>> {
@@ -23,7 +28,7 @@ export class UsersService {
         return user;
     }
 
-    async update(id: string, updateUserDto: UpdateUserDto) {
+    async update(id: string, updateUserDto: UpdateUserDto): Promise<typeof User.$inferSelect> {
         const [user] = await DrizzleService.db.update(User).set(updateUserDto).where(eq(User.id, id)).returning();
         return user;
     }

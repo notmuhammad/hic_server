@@ -7,9 +7,15 @@ import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class PostsService {
-    async create(createPostDto: CreatePostDto): Promise<typeof Post.$inferInsert> {
-        const [post] = await DrizzleService.db.insert(Post).values(createPostDto).returning();
-        return post;
+    async create(createPostDto: CreatePostDto): Promise<typeof Post.$inferInsert | string> {
+        try {
+            const [post] = await DrizzleService.db.insert(Post).values(createPostDto).returning();
+            return post;
+        } catch (error) {
+            const errorMessage = `Error creating new post: ${error.message}`;
+            console.log(errorMessage);
+            return errorMessage;
+        }
     }
 
     async findAll(): Promise<Array<typeof Post.$inferSelect>> {
@@ -17,7 +23,7 @@ export class PostsService {
         return posts;
     }
 
-    async findOne(id: string) {
+    async findOne(id: string): Promise<typeof Post.$inferSelect> {
         const [post] = await DrizzleService.db.select().from(Post).where(eq(Post.id, id));
         return post;
     }
