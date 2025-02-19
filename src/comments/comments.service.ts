@@ -23,6 +23,11 @@ export class CommentsService {
         return comments;
     }
 
+    async findAllByPost(postId: string): Promise<Array<typeof Comment.$inferSelect>> {
+        const comments = await DrizzleService.db.select().from(Comment).where(eq(Comment.post, postId));
+        return comments;
+    }
+
     async findOne(id: string): Promise<typeof Comment.$inferSelect> {
         const [comment] = await DrizzleService.db.select().from(Comment).where(eq(Comment.id, id));
         return comment;
