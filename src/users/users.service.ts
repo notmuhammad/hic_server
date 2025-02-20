@@ -9,7 +9,11 @@ import { eq } from 'drizzle-orm';
 export class UsersService {
     async create(createUserDto: CreateUserDto): Promise<typeof User.$inferInsert | string> {
         try {
-            const [user] = await DrizzleService.db.insert(User).values(createUserDto).returning();
+            const [user] = await DrizzleService.db
+                .insert(User)
+                .values({ ...createUserDto, passwordHash: createUserDto.password})
+                .returning();
+
             return user;
         } catch (error) {
             const errorMessage = `Error creating new post: ${error.message}`;

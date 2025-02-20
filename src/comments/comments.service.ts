@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { Comment } from 'src/drizzle/schema';
+import { Comment, User } from 'src/drizzle/schema';
 import { DrizzleService } from 'src/drizzle/drizzle.service';
 import { eq } from 'drizzle-orm';
 
@@ -23,8 +23,16 @@ export class CommentsService {
         return comments;
     }
 
-    async findAllByPost(postId: string): Promise<Array<typeof Comment.$inferSelect>> {
-        const comments = await DrizzleService.db.select().from(Comment).where(eq(Comment.post, postId));
+    // TODO: types
+    async findAllByPost(postId: string) {
+        const data = await DrizzleService.db
+            .select()
+            .from(Comment)
+            .where(eq(Comment.post, postId))
+            .leftJoin(User, eq(Comment.user, User.id));
+
+        const comments = data.map(raw => ({ ...raw.comments, user: raw.users }));
+
         return comments;
     }
 
