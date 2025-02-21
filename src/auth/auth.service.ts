@@ -45,9 +45,9 @@ export class AuthService {
     }
 
     async login(user: typeof User.$inferSelect) {
-        console.log(user)
         const payload = { email: user.email, sub: user.id };
         return {
+            ...user,
             access_token: this.jwtService.sign(payload)
         };
     }

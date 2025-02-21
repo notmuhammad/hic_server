@@ -42,6 +42,9 @@ export class PostsService {
             .where(eq(Post.id, id))
             .leftJoin(User, eq(Post.author, User.id));
 
+        if (!post)
+            return `No post found with ID ${id}`;
+
         const comments = await this.commentsService.findAllByPost(id);
         return { ...post.posts, author: post.users,  comments };
     }
